@@ -56,3 +56,4 @@ Apply fabric textures to furniture images using AI-powered image generation with
 1. The couch image is processed through ControlNet's canny edge detection to preserve the furniture's structure
 2. The fabric texture is used as a style reference via IP-Adapter
 3. The AI model generates a new image combining the couch structure with the fabric texture
+# botoso-fabric-ai
