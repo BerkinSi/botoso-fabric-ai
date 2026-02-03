@@ -23,22 +23,23 @@ export async function POST(request: Request) {
       auth: process.env.REPLICATE_API_TOKEN,
     });
 
-    // Using fofr/sdxl-controlnet-ip-adapter which properly combines:
+    // Using usamaehsan/controlnet-x-ip-adapter-realistic-vision-v5 which combines:
     // - ControlNet (canny): Preserves structure from the couch image
     // - IP-Adapter: Transfers texture/style from the fabric image
     const output = await replicate.run(
-      "fofr/sdxl-controlnet-ip-adapter:6c59535d7425eac1483ce7dbb00523a68fb5e95816f2ca32b22b172f5ca59eea",
+      "usamaehsan/controlnet-x-ip-adapter-realistic-vision-v5:7e68116d1d2cc0efa9013d9010f663e7fc6ca53ea6442bf5c56d30cc7a3833cd",
       {
         input: {
-          prompt: "a couch with beautiful upholstery fabric, photorealistic, high quality, detailed texture, professional interior photography",
-          negative_prompt: "blurry, low quality, distorted, deformed, ugly, bad anatomy",
-          control_image: couchImage,
+          prompt: "a couch with beautiful fabric upholstery, photorealistic, high quality interior photography, detailed fabric texture, professional furniture photo",
+          negative_prompt: "blurry, low quality, distorted, deformed, ugly, cartoon, drawing, painting, sketch, anime",
+          image: couchImage,
           ip_adapter_image: fabricImage,
+          controlnet_type: "canny",
           controlnet_conditioning_scale: 0.8,
-          ip_adapter_scale: 0.8,
+          ip_adapter_weight: 0.8,
           num_inference_steps: 30,
           guidance_scale: 7.5,
-          seed: -1,
+          seed: 0,
         },
       }
     );
