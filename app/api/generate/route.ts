@@ -23,25 +23,22 @@ export async function POST(request: Request) {
       auth: process.env.REPLICATE_API_TOKEN,
     });
 
-    // Using rossjillian/controlnet model which supports IP-Adapter and ControlNet
-    // The couch image provides structure via ControlNet (canny edge detection)
-    // The fabric image provides style via IP-Adapter
+    // Using fofr/sdxl-controlnet-ip-adapter which properly combines:
+    // - ControlNet (canny): Preserves structure from the couch image
+    // - IP-Adapter: Transfers texture/style from the fabric image
     const output = await replicate.run(
-      "rossjillian/controlnet:795433b19458d0f4fa172a7ccf93178d2adb1cb8ab2ad6c8fdc33fdbcd49f477",
+      "fofr/sdxl-controlnet-ip-adapter:6c59535d7425eac1483ce7dbb00523a68fb5e95816f2ca32b22b172f5ca59eea",
       {
         input: {
-          image: couchImage,
-          prompt: "a couch with the exact fabric texture and pattern applied, photorealistic, high quality, detailed upholstery",
-          structure: "canny",
-          image_resolution: 768,
-          a_prompt: "best quality, extremely detailed, professional photography",
-          n_prompt: "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, blurry",
-          ddim_steps: 30,
-          scale: 9,
+          prompt: "a couch with beautiful upholstery fabric, photorealistic, high quality, detailed texture, professional interior photography",
+          negative_prompt: "blurry, low quality, distorted, deformed, ugly, bad anatomy",
+          control_image: couchImage,
+          ip_adapter_image: fabricImage,
+          controlnet_conditioning_scale: 0.8,
+          ip_adapter_scale: 0.8,
+          num_inference_steps: 30,
+          guidance_scale: 7.5,
           seed: -1,
-          eta: 0,
-          low_threshold: 100,
-          high_threshold: 200,
         },
       }
     );
