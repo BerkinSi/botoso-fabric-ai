@@ -23,22 +23,23 @@ export async function POST(request: Request) {
       auth: process.env.REPLICATE_API_TOKEN,
     });
 
-    // Using usamaehsan/controlnet-x-ip-adapter-realistic-vision-v5 which combines:
-    // - ControlNet (canny): Preserves structure from the couch image
-    // - IP-Adapter: Transfers texture/style from the fabric image
+    // OPTIMIZED: Using IP-Adapter Plus + Tile ControlNet for best results
+    // - Tile ControlNet: Preserves texture details and structure (better than canny)
+    // - IP-Adapter Plus: Superior style/texture transfer from fabric image
     const output = await replicate.run(
       "usamaehsan/controlnet-x-ip-adapter-realistic-vision-v5:7e68116d1d2cc0efa9013d9010f663e7fc6ca53ea6442bf5c56d30cc7a3833cd",
       {
         input: {
-          prompt: "a couch with beautiful fabric upholstery, photorealistic, high quality interior photography, detailed fabric texture, professional furniture photo",
-          negative_prompt: "blurry, low quality, distorted, deformed, ugly, cartoon, drawing, painting, sketch, anime",
+          prompt: "the same couch with new fabric upholstery, exact same shape and proportions, fabric texture applied to furniture, photorealistic interior photography, high quality, sharp details",
+          negative_prompt: "different couch, different shape, distorted, deformed, blurry, low quality, cartoon, drawing, painting, sketch, anime, extra furniture, missing parts",
           image: couchImage,
           ip_adapter_image: fabricImage,
-          controlnet_type: "canny",
-          controlnet_conditioning_scale: 0.8,
-          ip_adapter_weight: 0.8,
-          num_inference_steps: 30,
-          guidance_scale: 7.5,
+          ip_adapter_ckpt: "ip-adapter-plus_sd15.bin",
+          controlnet_type: "tile",
+          controlnet_conditioning_scale: 1.1,
+          ip_adapter_weight: 0.85,
+          num_inference_steps: 35,
+          guidance_scale: 7,
           seed: 0,
         },
       }
